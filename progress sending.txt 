@@ -1,0 +1,60 @@
+In EmailData.php (Path: tutor-pro/addons/tutor-email/classes/EmailData.php)
+'student_progress'            => array(
+					'label'         => __( 'Send Progress to Students', 'tutor-pro' ),
+					'default'       => 'off',
+					'template'      => 'to_student_progress_of_student',
+					'tooltip'       => 'Enable to send email notification to every students about their current progress each monday, wednesday, friday',
+					'subject'       => __( 'Your Progress', 'tutor-pro' ),
+					'heading'       => __( 'Dear {user_name}', 'tutor-pro' ),
+                    'days_to_send' => ('Monday', 'Wednesday', 'Friday'),
+					'message'       => json_encode( "Your current progression is {current_course_percentage}. 
+                                                    Yours truly,Zaneta McCoy
+                                                    Academic Counci Team----Administration
+                                                    TamTam Digital School---Togo" ),
+					'placeholders'  => EmailPlaceholder::only( array( 'user_name', 'site_url', 'site_name' ) ),
+				),
+
+
+
+Create Student Progress (to_student_progress_of_student.php (Path: tutor-pro/templates/email/to_student_progress_of_student.php)) template 
+
+
+
+Set the function to send progress to the student each monday, wednesday, and friday
+
+<?php echo tutor_utils()->get_tutor_avatar($user_info->ID, 'lg'); ?>
+
+<?php echo esc_html($user_info->display_name); ?>
+
+
+<?php
+							foreach ($enrolled_course->posts as $course) :
+								$lessons     = tutor_utils()->get_course_content_list(tutor()->lesson_post_type, tutor()->course_post_type, $course->ID);
+								$assignments = tutor_utils()->get_course_content_list('tutor_assignments', tutor()->course_post_type, $course->ID);
+								$quizzes     = tutor_utils()->get_course_content_list('tutor_quiz', tutor()->course_post_type, $course->ID);
+
+								$course_progress      = tutor_utils()->get_course_completed_percent($course->ID, $student_id);
+								$total_lessons        = is_array($lessons) ? count($lessons) : 0;
+								$completed_lessons    = tutor_utils()->get_completed_lesson_count_by_course($course->ID, $student_id);
+								$total_assignments    = is_array($assignments) ? count($assignments) : 0;
+								$completed_assignment = tutor_utils()->get_completed_assignment($course->ID, $student_id);
+								$total_quiz           = is_array($quizzes) ? count($quizzes) : 0;
+								$completed_quiz       = tutor_utils()->get_completed_quiz($course->ID, $student_id);
+								$enrolled_data		  = tutor_utils()->get_enrolled_data($student_id, $course->ID);
+							?>
+
+<?php echo esc_html($course->post_title); ?>
+
+<?php echo esc_attr($course_progress); ?>%
+
+
+Use inactive_days setup for sending mail monday, wednesday and friday
+
+
+
+
+
+
+
+To replace "Nonce verification failed" message by "Please reload the page !"
+Path tutor/classes/Ajax.php; line 572
